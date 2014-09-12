@@ -1,0 +1,26 @@
+path:
+  data: /data/data
+  logs: /data/log
+  plugins: /plugins
+  work: /data/work
+
+cluster:
+  name: ${ES_CLUSTER_NAME}
+
+cloud:
+  aws:
+    access_key: ${AWS_ACCESS_KEY}
+    secret_key: ${AWS_SECRET_KEY}
+    region: ${ES_AWS_REGION}
+
+discovery:
+  type: ec2
+  ec2:
+    groups: ${ES_SECURITY_GROUP}
+  zen:
+    ping:
+      multicast:
+        enabled: false
+
+network:
+  publish_host: _ec2:privateIp_
