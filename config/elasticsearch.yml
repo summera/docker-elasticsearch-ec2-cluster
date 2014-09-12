@@ -1,17 +1,16 @@
-path:
-  data: /data/data
-  logs: /data/log
-  plugins: /plugins
-  work: /data/work
+# =================
+# EC2 Configuration
+# =================
 
-cluster:
-  name: ${ES_CLUSTER_NAME}
 
 cloud:
   aws:
     access_key: ${AWS_ACCESS_KEY}
     secret_key: ${AWS_SECRET_KEY}
     region: ${ES_AWS_REGION}
+
+cluster:
+  name: ${ES_CLUSTER_NAME}
 
 discovery:
   type: ec2
@@ -23,4 +22,58 @@ discovery:
         enabled: false
 
 network:
+  # Publish host as ec2 private IP instead of Docker container IP
   publish_host: _ec2:privateIp_
+
+path:
+  data: /data/data
+  logs: /data/log
+  # Specify our plugins dir as /data folder is mounted
+  plugins: /plugins
+  work: /data/work
+
+# ==================
+# Performance Tuning
+# ==================
+
+
+# No swapping, plz
+bootstrap:
+  mlockall: true
+
+indices:
+  memory:
+    # At first with bulk insertion, we give more memory to indexing
+    # later when indexing is less of priority, turn this knob down
+    index_buffer_size: 60%
+    min_shard_index_buffer_size: 12mb
+    min_index_buffer_size: 96mb
+  fielddata:
+    cache:
+      size: 15%
+      expire: 6h
+  cache:
+    size: 15%
+    expire: 6h
+    filter:
+      size: 15%
+      expire: 6h
+
+# This will inevitably need to be adjusted
+# For now, optimize more for indexing (writes)
+threadpool:
+  search:
+    type: fixed
+    size: 20
+    queue_size: 100
+  index:
+    type: fixed
+    size: 60
+    queue_size: 200
+
+index:
+  # Lower threshold once bulk indexing is finished
+  # i.e. after importing logs retroactively
+  refresh_interval: 30s
+  translog:
+    flush_threshold_ops: 50000
