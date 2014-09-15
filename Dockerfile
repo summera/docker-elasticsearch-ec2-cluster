@@ -6,7 +6,6 @@ RUN apt-get -y install wget unzip
 # Set ENV vars
 ENV ES_CLUSTER_NAME elasticsearch
 ENV ES_AWS_REGION us-east-1
-ENV ES_SECURITY_GROUP elasticsearch
 
 # Mount elasticsearch.yml config
 ADD config/elasticsearch.yml /elasticsearch/config/elasticsearch.yml
